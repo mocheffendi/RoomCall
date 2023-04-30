@@ -1,0 +1,527 @@
+/*
+  The define ESPxWebFlMgr_FileSystem holds the selected filesystem in (surprise!) ESPxWebFlMgr.
+
+  You can
+    -- ignore it. Then LittleFS will be selected and you need to use LittleFS.whatever().
+    -- use it. Like in this example.
+    -- change it. Set a new value *BEFORE* #including <ESPxWebFlMgr.h>
+       Only "#define ESPxWebFlMgr_FileSystem SPIFFS" makes any sense.
+*/
+
+// Board settings
+// Board: "Generic ESP8266 Module"
+// Builtin Led: "2"
+// Upload Speed: "115200"
+// CPU Frequency: "160 MHz"
+// Crystal Frequency: "26 MHz"
+// Flash Size: "4MB (FS:2MB OTA:~1019KB)"
+// Flash Mode: "DOUT (compatible)"
+// Flash Frequency: "40MHz"
+// Reset Method: "dtr (aka nodemcu)"
+// Debug port: "Disabled"
+// Debug Level: "Keine"
+// lwIP Variant: "v2 Lower Memory"
+// VTables: "Flash"
+// Exceptions: "Legacy (new can return nullptr)"
+// Erase Flash: "Only Sketch"
+// Espressif FW: "nonos-sdk 2.2.1+100 (190703)"
+// SSL Support: "All SSL ciphers (most compatible)"
+
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ESPxWebFlMgr.h>
+#include <FS.h>
+#include <LittleFS.h>
+
+#include <ArduinoJson.h>
+
+// OTA
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
+#ifndef STASSID
+#define STASSID "MEFFENDI"
+#define STAPSK "5758WASISGo"
+#endif
+
+const char *ssid = STASSID;
+const char *password = STAPSK;
+
+// mark parameters not used in example
+#define UNUSED __attribute__((unused))
+
+// TRACE output simplified, can be deactivated here
+#define TRACE(...) Serial.printf(__VA_ARGS__)
+
+// name of the server. You reach it using http://webserver
+#define HOSTNAME "webserver"
+
+ESP8266WebServer server(80);
+const word filemanagerport = 8080;
+
+ESPxWebFlMgr filemgr(filemanagerport); // we want a different port than the webserver
+
+int blue = 2;
+unsigned long intervalBlue = 1000; // how long to delay in millis
+unsigned long previousBlue = 0;
+int blueState = LOW;
+
+void handleRoot()
+{
+  File file = LittleFS.open("/index.html", "r");
+  if (!file)
+  {
+    Serial.println("No Saved Data!");
+  }
+
+  server.streamFile(file, "text/html");
+  file.close();
+}
+
+void handleRedirect()
+{
+  TRACE("Redirect...");
+  String url = "/index.html";
+
+  if (!LittleFS.exists(url))
+  {
+    url = "/$update.html";
+  }
+
+  server.sendHeader("Location", url, true);
+  server.send(302);
+} // handleRedirect()
+
+void handleGetData()
+{
+  File file = LittleFS.open("/data.json", "r");
+  server.streamFile(file, "application/json");
+  file.close();
+}
+
+void handlePostData()
+{
+  if (server.method() == HTTP_POST)
+  {
+    Serial.println("handlePostData");
+
+    for (int i = 0; i < 30; i++)
+    {
+      analogWrite(blue, (i * 100) % 1001);
+      delay(25);
+    }
+
+    String data = server.arg("plain");
+    File file = LittleFS.open("/data.json", "w");
+    file.print(data);
+    file.close();
+    server.send(200, "text/plain", "Data on littleFS saved successfully");
+  }
+}
+
+void handleDeleteData()
+{
+  if (server.method() == HTTP_DELETE)
+  {
+    for (int i = 0; i < 30; i++)
+    {
+      analogWrite(blue, (i * 100) % 1001);
+      delay(25);
+    }
+
+    File file = LittleFS.open("/data.json", "w");
+    file.print("{}");
+    file.close();
+    server.send(200, "text/plain", "Data on littleFS deleted successfully");
+  }
+}
+
+void handleUpdateData()
+{
+  if (server.method() == HTTP_PUT)
+  {
+    String data = server.arg("plain");
+    File file = LittleFS.open("/data.json", "w");
+    file.print(data);
+    file.close();
+    server.send(200, "text/plain", "Data on littleFS updated successfully");
+  }
+}
+
+// API sisi arduino microcontroller
+
+struct Person
+{
+  String id;
+  String name;
+  int age;
+};
+
+void handleAPI()
+{
+  File file = LittleFS.open("/index.html", "r");
+  server.streamFile(file, "text/html");
+  file.close();
+}
+
+void handleBuatData()
+{
+  if (server.method() == HTTP_POST)
+  {
+    Serial.println("handleCreateData");
+
+    for (int i = 0; i < 30; i++)
+    {
+      analogWrite(blue, (i * 100) % 1001);
+      delay(25);
+    }
+
+    String data = server.arg("plain");
+    File file = LittleFS.open("/dataku.json", "w");
+    file.print(data);
+    file.close();
+    server.send(200, "text/plain", "Data on littleFS saved successfully");
+  }
+}
+
+void handleTambah()
+{
+  File file = LittleFS.open("/dataku.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+
+  String name = server.arg("name");
+  int age = server.arg("age").toInt();
+
+  String id = String(data.size());
+  Serial.println("id: " + id);
+
+  Person person = {id, name, age};
+  JsonObject obj = data.createNestedObject(id);
+  obj["id"] = person.id;
+  obj["name"] = person.name;
+  obj["age"] = person.age;
+
+  File outFile = LittleFS.open("/dataku.json", "w");
+  if (!outFile)
+  {
+    Serial.println("Failed to open file for writing");
+    server.send(500, "text/plain", "Failed to open file for writing");
+    return;
+  }
+
+  serializeJson(data, outFile);
+
+  outFile.close();
+
+  server.send(200, "text/plain", "Record added successfully");
+}
+
+void handleDapat()
+{
+  File file = LittleFS.open("/dataku.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+
+  String output;
+  serializeJsonPretty(data, output);
+
+  server.send(200, "application/json", output);
+}
+
+void handleDapatById()
+{
+  File file = LittleFS.open("/dataku.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+
+  // String id = server.pathArg(0);
+
+  int id = server.arg("id").toInt();
+  Serial.println(id);
+
+  JsonObject obj = data[id];
+
+  String output;
+  serializeJsonPretty(obj, output);
+
+  server.send(200, "application/json", output);
+}
+
+void handlePerbarui()
+{
+  File file = LittleFS.open("/dataku.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+
+  int id = server.arg("id").toInt();
+
+  JsonObject obj = data[id];
+
+  String name = server.arg("name");
+  int age = server.arg("age").toInt();
+
+  String roomname = server.arg("roomname");
+  String bedname = server.arg("bedname");
+  bool status = false;
+
+  obj["name"] = name;
+  obj["age"] = age;
+
+  obj["roomname"] = roomname;
+  obj["bedname"] = bedname;
+  obj["status"] = status;
+
+  File outFile = LittleFS.open("/dataku.json", "w");
+  if (!outFile)
+  {
+    Serial.println("Failed to open file for writing");
+    server.send(500, "text/plain", "Failed to open file for writing");
+    return;
+  }
+
+  serializeJson(data, outFile);
+
+  outFile.close();
+
+  server.send(200, "text/plain", "Record updated successfully");
+}
+
+void handleHapus()
+{
+  File file = LittleFS.open("/dataku.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+  // Serial.println(buf.get());
+  // Serial.println(data);
+
+  int id = server.arg("id").toInt();
+  // Serial.println("id: " + id);
+
+  data.remove(id);
+
+  File outFile = LittleFS.open("/dataku.json", "w");
+  if (!outFile)
+  {
+    Serial.println("Failed to open file for writing");
+    server.send(500, "text/plain", "Failed to open file for writing");
+    return;
+  }
+
+  serializeJson(data, outFile);
+
+  outFile.close();
+
+  server.send(200, "text/plain", "Record deleted successfully");
+}
+
+void handleCall()
+{
+  File file = LittleFS.open("/dataku.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+
+  int id = server.arg("id").toInt();
+
+  JsonObject obj = data[id];
+
+  bool status;
+  // String roomname = server.arg("roomname");
+  // String bedname = server.arg("bedname");
+  if (server
+          .arg("status") == "1")
+  {
+    status = true;
+  }
+  else
+  {
+    status = false;
+  }
+
+  // obj["roomname"] = roomname;
+  // obj["bedname"] = bedname;
+  obj["status"] = status;
+
+  File outFile = LittleFS.open("/dataku.json", "w");
+  if (!outFile)
+  {
+    Serial.println("Failed to open file for writing");
+    server.send(500, "text/plain", "Failed to open file for writing");
+    return;
+  }
+
+  serializeJson(data, outFile);
+
+  serializeJsonPretty(data, Serial);
+
+  outFile.close();
+
+  server.send(200, "text/plain", "Record updated successfully");
+}
+
+void setup()
+{
+  // the usual Serial stuff....
+  Serial.begin(115200);
+  delay(1000);
+  Serial.println("\n\nESP8266WebFlMgr Demo basic");
+
+  ESPxWebFlMgr_FileSystem.begin();
+
+  // login into WiFi
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(1);
+  }
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.print("Open Filemanager with http://");
+    Serial.print(WiFi.localIP());
+    Serial.print(":");
+    Serial.print(filemanagerport);
+    Serial.print("/");
+    Serial.println();
+  }
+
+  pinMode(blue, OUTPUT);
+
+  ArduinoOTA.onStart([]()
+                     {
+    analogWrite(blue, 0);
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      type = "sketch";
+    } else {  // U_FS
+      type = "filesystem";
+    }
+
+    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+    Serial.println("Start updating " + type); });
+  ArduinoOTA.onEnd([]()
+                   { 
+                    for (int i = 0; i < 30; i++) 
+                    {
+                      analogWrite(blue, (i * 100) % 1001);
+                      delay(50);
+                    }
+                    Serial.println("\nEnd"); });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
+                        { Serial.printf("Progress: %u%%\r", (progress / (total / 100))); });
+  ArduinoOTA.onError([](ota_error_t error)
+                     {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) {
+      Serial.println("Auth Failed");
+    } else if (error == OTA_BEGIN_ERROR) {
+      Serial.println("Begin Failed");
+    } else if (error == OTA_CONNECT_ERROR) {
+      Serial.println("Connect Failed");
+    } else if (error == OTA_RECEIVE_ERROR) {
+      Serial.println("Receive Failed");
+    } else if (error == OTA_END_ERROR) {
+      Serial.println("End Failed");
+    } });
+  ArduinoOTA.begin();
+
+  server.on("/", HTTP_GET, handleRedirect);
+  server.on("/get-data", handleGetData);
+  server.on("/post-data", handlePostData);
+  server.on("/delete-data", handleDeleteData);
+  server.on("/update-data", handleUpdateData);
+
+  // API sisi arduino microcontroller
+
+  server.on("/api", handleAPI);
+  server.on("/add", HTTP_POST, handleTambah);
+  server.on("/create", HTTP_POST, handleBuatData);
+  server.on("/get", handleDapat);
+  server.on("/getid", handleDapatById);
+  server.on("/updateid", HTTP_POST, handlePerbarui);
+  server.on("/deleteid", HTTP_POST, handleHapus);
+  server.on("/call", handleCall);
+
+  // UPLOAD and DELETE of files in the file system using a request handler.
+  // server.addHandler(new FileServerHandler());
+
+  // enable CORS header in webserver results
+  server.enableCORS(true);
+
+  // enable ETAG header in webserver results from serveStatic handler
+  server.enableETag(true);
+
+  // serve all static files
+  server.serveStatic("/index.html", LittleFS, "/index.html");
+  server.serveStatic("/", LittleFS, "/index.html");
+  server.serveStatic("/main.js", LittleFS, "/main.js");
+  server.serveStatic("/styles.css", LittleFS, "/styles.css");
+
+  // handle cases when file is not found
+  // server.onNotFound([](){
+  // standard not found in browser.
+  // server.send(404, "text/html", FPSTR(notFoundContent)); });
+
+  server.begin();
+
+  filemgr.begin();
+}
+
+void loop()
+{
+  filemgr.handleClient();
+  delay(2);
+  server.handleClient();
+  delay(2);
+  ArduinoOTA.handle();
+
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousBlue >= intervalBlue)
+  {
+    // save this reading!
+    previousBlue = currentMillis;
+
+    // figure out if you should turn the LED on or off
+    if (blueState == LOW)
+    {
+      blueState = HIGH;
+    }
+    else
+    {
+      blueState = LOW;
+    }
+    digitalWrite(blue, blueState);
+  }
+}
