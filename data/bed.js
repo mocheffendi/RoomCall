@@ -38,6 +38,18 @@ let acceptData = async () => {
         status: statusInput.value,
     });
 
+    data.sort(function (a, b) {
+        return a.bedname > b.bedname ? 1 : (a.bedname === b.bedname ? 0 : -1);
+    });
+
+    data.sort(function (a, b) {
+        // return a.roomname.split(",")[0] - b.roomname.split(",")[0];
+        return a.roomname > b.roomname ? 1 : (a.roomname === b.roomname ? 0 : -1);
+    });
+
+    console.log("sorting");
+    console.log(JSON.stringify(data));
+
     localStorage.setItem("data", JSON.stringify(data));
     console.log('Data on localStorage saved successfully');
 
@@ -205,7 +217,7 @@ let createTasks = async () => {
     })
 
     setTimeout(() => {
-        document.location.reload();
+        // document.location.reload();
         // $("#tasks").load(location.href + " #tasks");
     }, reloadInterval);
     resetForm();
@@ -268,3 +280,7 @@ let resetForm = () => {
     console.log(data);
     createTasks();
 })()
+
+const swappable = new Swappable.default(document.querySelectorAll('.grid__container'), {
+    draggable: '.grid__element'
+});
