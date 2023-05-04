@@ -40,6 +40,8 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
+FSInfo fs_info;
+
 #ifndef STASSID
 #define STASSID "MEFFENDI"
 #define STAPSK "5758WASISGo"
@@ -390,6 +392,99 @@ void handleCall()
   server.send(200, "text/plain", "Record updated successfully");
 }
 
+void hwInit()
+{
+  Serial.println("hwInit");
+
+  String FreeHeap = String(ESP.getFreeHeap());
+  String SketchSize = String(ESP.getSketchSize());
+
+  String ChipRealSize = String(ESP.getFlashChipRealSize());
+  String VendorID = String(ESP.getFlashChipVendorId());
+  String FlashChipID = String(ESP.getFlashChipId());
+  String CPUFreqMhz = String(ESP.getCpuFreqMHz());
+  uint16_t v = ESP.getVcc();
+  float vcc = ((float)v / 1024.0f);
+  char v_str[10];
+  dtostrf(vcc, 5, 3, v_str);
+  sprintf(v_str, "%s V", v_str);
+  Serial.println(v_str);
+
+  String VCC = String(vcc);
+
+  String WiFiSSID = String(WiFi.SSID());
+  String LocalIP = WiFi.localIP().toString();
+  String SubnetMask = WiFi.subnetMask().toString();
+  String GateWay = WiFi.gatewayIP().toString();
+  String DNSIP = WiFi.dnsIP().toString();
+  String MACAddressHW = WiFi.macAddress();
+
+  LittleFS.info(fs_info);
+  String TotalSize = String(fs_info.totalBytes);
+  String UsedSize = String(fs_info.usedBytes);
+
+  int FreeSpaces = ChipRealSize.toInt() - TotalSize.toInt() - SketchSize.toInt();
+  String FreeSpace = String(FreeSpaces);
+  File file = LittleFS.open("/system.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+
+  // int id = server.arg("id").toInt();
+
+  JsonObject obj = data.to<JsonObject>();
+
+  obj["FreeHeap"] = FreeHeap;
+  obj["SketchSize"] = SketchSize;
+  obj["FlashChipID"] = FlashChipID;
+  obj["ChipRealSize"] = ChipRealSize;
+  obj["FreeSpace"] = FreeSpace;
+  obj["VendorID"] = VendorID;
+  obj["CPUFreqMhz"] = CPUFreqMhz;
+  obj["VCC"] = VCC;
+  obj["WiFiSSID"] = WiFiSSID;
+  obj["LocalIP"] = LocalIP;
+  obj["SubnetMask"] = SubnetMask;
+  obj["GateWay"] = GateWay;
+  obj["DNSIP"] = DNSIP;
+  obj["MACAddressHW"] = MACAddressHW;
+  obj["TotalSize"] = TotalSize;
+  obj["UsedSize"] = UsedSize;
+
+  File outFile = LittleFS.open("/system.json", "w");
+  if (!outFile)
+  {
+    Serial.println("Failed to open file for writing");
+    // server.send(500, "text/plain", "Failed to open file for writing");
+    return;
+  }
+
+  serializeJson(data, outFile);
+  serializeJsonPretty(data, Serial);
+  outFile.close();
+}
+
+void handleSystem()
+{
+  File file = LittleFS.open("/system.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  file.close();
+
+  DynamicJsonDocument data(1024);
+  deserializeJson(data, buf.get());
+
+  String output;
+  serializeJsonPretty(data, output);
+
+  server.send(200, "application/json", output);
+}
+
 void setup()
 {
   // the usual Serial stuff....
@@ -472,6 +567,7 @@ void setup()
   server.on("/updateid", HTTP_POST, handlePerbarui);
   server.on("/deleteid", HTTP_POST, handleHapus);
   server.on("/call", handleCall);
+  server.on("/system", handleSystem);
 
   // UPLOAD and DELETE of files in the file system using a request handler.
   // server.addHandler(new FileServerHandler());
@@ -494,8 +590,8 @@ void setup()
   // server.send(404, "text/html", FPSTR(notFoundContent)); });
 
   server.begin();
-
   filemgr.begin();
+  hwInit();
 }
 
 void loop()
