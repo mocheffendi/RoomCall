@@ -69,6 +69,15 @@ unsigned long intervalBlue = 1000; // how long to delay in millis
 unsigned long previousBlue = 0;
 int blueState = LOW;
 
+void fancyled()
+{
+  for (int i = 0; i < 30; i++)
+  {
+    analogWrite(blue, (i * 100) % 1001);
+    delay(50);
+  }
+}
+
 void handleRoot()
 {
   File file = LittleFS.open("/index.html", "r");
@@ -108,11 +117,7 @@ void handlePostData()
   {
     Serial.println("handlePostData");
 
-    for (int i = 0; i < 30; i++)
-    {
-      analogWrite(blue, (i * 100) % 1001);
-      delay(25);
-    }
+    fancyled();
 
     String data = server.arg("plain");
     File file = LittleFS.open("/data.json", "w");
@@ -126,11 +131,7 @@ void handleDeleteData()
 {
   if (server.method() == HTTP_DELETE)
   {
-    for (int i = 0; i < 30; i++)
-    {
-      analogWrite(blue, (i * 100) % 1001);
-      delay(25);
-    }
+    fancyled();
 
     File file = LittleFS.open("/data.json", "w");
     file.print("{}");
@@ -173,11 +174,7 @@ void handleBuatData()
   {
     Serial.println("handleCreateData");
 
-    for (int i = 0; i < 30; i++)
-    {
-      analogWrite(blue, (i * 100) % 1001);
-      delay(25);
-    }
+    fancyled();
 
     String data = server.arg("plain");
     File file = LittleFS.open("/dataku.json", "w");
@@ -405,10 +402,10 @@ void hwInit()
   String CPUFreqMhz = String(ESP.getCpuFreqMHz());
   uint16_t v = ESP.getVcc();
   float vcc = ((float)v / 1024.0f);
-  char v_str[10];
-  dtostrf(vcc, 5, 3, v_str);
-  sprintf(v_str, "%s V", v_str);
-  Serial.println(v_str);
+  // char v_str[10];
+  // dtostrf(vcc, 5, 3, v_str);
+  // sprintf(v_str, "%s V", v_str);
+  // Serial.println(v_str);
 
   String VCC = String(v);
 
@@ -466,10 +463,13 @@ void hwInit()
   serializeJson(data, outFile);
   serializeJsonPretty(data, Serial);
   outFile.close();
+  fancyled();
 }
 
 void handleSystem()
 {
+  hwInit();
+
   File file = LittleFS.open("/system.json", "r");
   size_t size = file.size();
   std::unique_ptr<char[]> buf(new char[size]);
@@ -488,6 +488,7 @@ void handleSystem()
 void handleRestart()
 {
   server.send(200, "text/plain", "ESP Restart");
+  fancyled();
   delay(500);
   ESP.reset();
 }
@@ -534,11 +535,7 @@ void setup()
     Serial.println("Start updating " + type); });
   ArduinoOTA.onEnd([]()
                    { 
-                    for (int i = 0; i < 30; i++) 
-                    {
-                      analogWrite(blue, (i * 100) % 1001);
-                      delay(50);
-                    }
+                    fancyled();
                     Serial.println("\nEnd"); });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
                         { Serial.printf("Progress: %u%%\r", (progress / (total / 100))); });
