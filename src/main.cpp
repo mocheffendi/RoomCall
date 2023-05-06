@@ -410,7 +410,7 @@ void hwInit()
   sprintf(v_str, "%s V", v_str);
   Serial.println(v_str);
 
-  String VCC = String(vcc);
+  String VCC = String(v);
 
   String WiFiSSID = String(WiFi.SSID());
   String LocalIP = WiFi.localIP().toString();
@@ -483,6 +483,13 @@ void handleSystem()
   serializeJsonPretty(data, output);
 
   server.send(200, "application/json", output);
+}
+
+void handleRestart()
+{
+  server.send(200, "text/plain", "ESP Restart");
+  delay(500);
+  ESP.reset();
 }
 
 void setup()
@@ -568,6 +575,7 @@ void setup()
   server.on("/deleteid", HTTP_POST, handleHapus);
   server.on("/call", handleCall);
   server.on("/system", handleSystem);
+  server.on("/restart", handleRestart);
 
   // UPLOAD and DELETE of files in the file system using a request handler.
   // server.addHandler(new FileServerHandler());
