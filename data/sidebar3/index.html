@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>NTPClock | WASISTech</title>
+
+    <link
+      href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="logo-details">
+        <i class="bx bxs-watch icon"></i>
+        <div class="logo_name">NTPClock</div>
+        <i class="bx bx-menu" id="btn"></i>
+      </div>
+      <ul class="nav-list">
+        <li>
+          <a href="/">
+            <i class="bx bx-grid-alt"></i>
+            <span class="links_name">Dashboard</span>
+          </a>
+          <span class="tooltip">Dashboard</span>
+        </li>
+        <!--<li>
+          <a href="#wifisetup">
+            <i class="bx bx-wifi"></i>
+            <span class="links_name">WiFi Setup</span>
+          </a>
+          <span class="tooltip">WiFi Setup</span>
+        </li>-->
+        <li>
+          <a href="#jamsetup">
+            <i class="bx bxs-watch-alt"></i>
+            <span class="links_name">Jam Setup</span>
+          </a>
+          <span class="tooltip">Jam Setup</span>
+        </li>
+        <li>
+          <a href="#ntpsetup">
+            <i class="bx bxs-watch"></i>
+            <span class="links_name">NTP Setup</span>
+          </a>
+          <span class="tooltip">NTP Setup</span>
+        </li>
+        <li>
+          <a href="#weathersetup">
+            <i class="bx bx-cloud-lightning"></i>
+            <span class="links_name">Weather</span>
+          </a>
+          <span class="tooltip">Weather</span>
+        </li>
+        <li>
+          <a href="#brightnesssetup">
+            <i class="bx bx-sun"></i>
+            <span class="links_name">Brightness</span>
+          </a>
+          <span class="tooltip">Brightness</span>
+        </li>
+        <li>
+          <a href="#runningtextsetup">
+            <i class="bx bx-chat"></i>
+            <span class="links_name">Text Messages</span>
+          </a>
+          <span class="tooltip">Text Messages</span>
+        </li>
+      </ul>
+    </div>
+    <section class="home-section" id="top-content">
+      <div class="container">
+        <h2>Pengaturan NTP Clock</h2>
+        <!--<p>
+          <span class="reading"><span id="uhari">%UPHARI%</span> :</span>
+          <span class="reading"><span id="ujam">%UPJAM%</span> :</span>
+          <span class="reading"><span id="umenit">%UPMENIT%</span> :</span>
+          <span class="reading"><span id="udetik">%UPDETIK%</span> :</span>
+          <span class="reading"
+            ><span id="umilidetik">%UPMILIDETIK%</span></span
+          >
+        </p>-->
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Info</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Up Time :</b></td>
+              <td>
+                %UPHARI% : %UPJAM% : %UPMENIT% : %UPDETIK%<!-- : %UPMILIDETIK%-->
+              </td>
+            </tr>
+            <tr>
+              <td><b>CHIP ID</b></td>
+              <td>%CHIPID%</td>
+            </tr>
+            <tr>
+              <td><b>CHIP Frequency</b></td>
+              <td>%CHIPFREQ% Hz</td>
+            </tr>
+            <tr>
+              <td><b>CHIP VCC</b></td>
+              <td>%CHIPVCC% Volt</td>
+            </tr>
+            <tr>
+              <td><b>Heap Uses</b></td>
+              <td>%HEAPUSES% Bytes</td>
+            </tr>
+            <tr>
+              <td><b>Free Heap</b></td>
+              <td>%FREEHEAP% Bytes</td>
+            </tr>
+            <tr>
+              <td><b>Sketch Uses</b></td>
+              <td>%SKETCHUSE% Bytes</td>
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <th>Network</th>
+              <th>Info</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>SSID</b></td>
+              <td>%SSIDNAME%</td>
+            </tr>
+            <tr>
+              <td><b>IP Address</b></td>
+              <td>%IPADDRESS%</td>
+            </tr>
+            <tr>
+              <td><b>Gateway</b></td>
+              <td>%GATEWAY%</td>
+            </tr>
+            <tr>
+              <td><b>Mask</b></td>
+              <td>%MASK%</td>
+            </tr>
+            <tr>
+              <td><b>DNS</b></td>
+              <td>%DNS%</td>
+            </tr>
+            <tr>
+              <td><b>MAC</b></td>
+              <td>%MAC%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <!--<section class="home-section" id="wifisetup">
+      <div class="container">
+        <h2>Pengaturan WiFi</h2>
+        <form action="/wifimanager" method="post">
+          <div class="form-group">
+            <label for="ssid">SSID :</label>
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="50"
+              name="ssid"
+              placeholder="ssid"
+            />
+          </div>
+          <div class="form-group">
+            <label for="pass">Password :</label>
+            <input
+              type="password"
+              class="form-control"
+              value=""
+              maxlength="50"
+              name="pass"
+              placeholder="pass"
+            />
+          </div>
+          <button type="submit" class="btn btn-default">Simpan</button>
+        </form>
+      </div>
+    </section>-->
+    <section class="home-section" id="jamsetup">
+      <div class="container">
+        <h2>Pengaturan Pilihan Jam</h2>
+        <form action="/jammanager" method="post">
+          <div class="form-group">
+            <label for="JamBesar">Jam Besar :</label>
+            <select class="form-control" id="jam_select" name="JamBesar">
+              <option value="1">Jam Besar 1</option>
+              <option value="2">Jam Besar 2</option>
+              <option value="3">Jam Besar 3</option>
+            </select>
+          </div>
+          <!--<label for="ssid">SSID</label>
+                <input type="text" id="ssid" name="ssid" /><br />
+                <label for="pass">Password</label>
+                <input type="text" id="pass" name="pass" /><br />
+                <label for="ip">IP Address</label>
+                <input type="text" id ="ip" name="ip" value="192.168.1.200">-->
+          <!--<input type="submit" value="Submit" />-->
+          <button type="submit" class="btn btn-default">Simpan</button>
+        </form>
+      </div>
+    </section>
+    <section class="home-section" id="ntpsetup">
+      <div class="container">
+        <h2>Pengaturan NTP</h2>
+        <form action="/ntp" method="post">
+          <div class="form-group">
+            <label for="intervalntp">Interval Update NTP (dalam menit):</label>
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="50"
+              name="intervalntp"
+              placeholder="Interval NTP"
+            />
+          </div>
+          <div class="form-group">
+            <label for="ntpPool">NTP Pool :</label>
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="50"
+              name="ntpPool"
+              placeholder="NTP Pool"
+            />
+          </div>
+          <!--<label for="ssid">SSID</label>
+                <input type="text" id="ssid" name="ssid" /><br />
+                <label for="pass">Password</label>
+                <input type="text" id="pass" name="pass" /><br />
+                <label for="ip">IP Address</label>
+              <input type="text" id ="ip" name="ip" value="192.168.1.200">-->
+          <!--<input type="submit" value="Submit" />-->
+          <button type="submit" class="btn btn-default">Simpan</button>
+        </form>
+      </div>
+    </section>
+    <section class="home-section" id="weathersetup">
+      <div class="container">
+        <h2>Pengaturan Weather</h2>
+        <form action="/weather" method="post">
+          <div class="form-group">
+            <label for="IntervalWeatherUpdate"
+              >Interval Weather Update (dalam menit):</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="50"
+              name="IntervalWeatherUpdate"
+              placeholder="Interval Weather Update"
+            />
+          </div>
+          <div class="form-group">
+            <label for="weatherHostName">Weather HostName :</label>
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="80"
+              name="weatherHostName"
+              placeholder="weatherHostName"
+            />
+          </div>
+          <div class="form-group">
+            <label for="openWeatherMapApiKey">openWeatherMap API Key :</label>
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="50"
+              name="openWeatherMapApiKey"
+              placeholder="openWeatherMap API Key"
+            />
+          </div>
+          <div class="form-group">
+            <label for="City">City :</label>
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="50"
+              name="City"
+              placeholder="City"
+            />
+          </div>
+
+          <!--<label for="ssid">SSID</label>
+                <input type="text" id="ssid" name="ssid" /><br />
+                <label for="pass">Password</label>
+                <input type="text" id="pass" name="pass" /><br />
+                <label for="ip">IP Address</label>
+              <input type="text" id ="ip" name="ip" value="192.168.1.200">-->
+          <!--<input type="submit" value="Submit" />-->
+          <button type="submit" class="btn btn-default">Simpan</button>
+        </form>
+      </div>
+    </section>
+    <section class="home-section" id="brightnesssetup">
+      <div class="container">
+        <h2>Pengaturan Tingkat Kecerahan</h2>
+        <form action="/brightness" method="post">
+          <div class="form-group">
+            <label for="Brightness">Brightness :</label>
+            <select
+              class="form-control"
+              id="brightness_select"
+              name="Brightness"
+            >
+              <option value="5">Lowest</option>
+              <option value="15">Low</option>
+              <option value="80">Medium</option>
+              <option value="125">High</option>
+              <option value="150">Highest</option>
+              <option value="200">Maximum</option>
+            </select>
+          </div>
+          <!--<label for="ssid">SSID</label>
+                <input type="text" id="ssid" name="ssid" /><br />
+                <label for="pass">Password</label>
+                <input type="text" id="pass" name="pass" /><br />
+                <label for="ip">IP Address</label>
+                <input type="text" id ="ip" name="ip" value="192.168.1.200">-->
+          <!--<input type="submit" value="Submit" />-->
+          <button type="submit" class="btn btn-default">Simpan</button>
+        </form>
+      </div>
+    </section>
+    <section class="home-section" id="runningtextsetup">
+      <div class="container">
+        <h2>Pengaturan Running Text</h2>
+        <form action="/runningtext" method="post">
+          <div class="form-group">
+            <label for="RunningText">RunningText :</label>
+            <input
+              type="text"
+              class="form-control"
+              value=""
+              maxlength="200"
+              name="RunningText"
+              placeholder="Running Text"
+            />
+            <!--<label for="ssid">SSID</label>
+                    <input type="text" id="ssid" name="ssid" /><br />
+                    <label for="pass">Password</label>
+                    <input type="text" id="pass" name="pass" /><br />
+                    <label for="ip">IP Address</label>
+                    <input type="text" id ="ip" name="ip" value="192.168.1.200">-->
+            <!--<input type="submit" value="Submit" />-->
+          </div>
+          <button type="submit" class="btn btn-default">Simpan</button>
+        </form>
+      </div>
+    </section>
+    <script src="script.js"></script>
+    <!--<script>
+      if (!!window.EventSource) {
+        var source = new EventSource("/events");
+
+        source.addEventListener(
+          "open",
+          function (e) {
+            console.log("Events Connected");
+          },
+          false
+        );
+        source.addEventListener(
+          "error",
+          function (e) {
+            if (e.target.readyState != EventSource.OPEN) {
+              console.log("Events Disconnected");
+            }
+          },
+          false
+        );
+
+        source.addEventListener(
+          "message",
+          function (e) {
+            console.log("message", e.data);
+          },
+          false
+        );
+
+        source.addEventListener(
+          "uphari",
+          function (e) {
+            console.log("uphari", e.data);
+            document.getElementById("uhari").innerHTML = e.data;
+          },
+          false
+        );
+
+        source.addEventListener(
+          "upjam",
+          function (e) {
+            console.log("upjam", e.data);
+            document.getElementById("ujam").innerHTML = e.data;
+          },
+          false
+        );
+
+        source.addEventListener(
+          "upmenit",
+          function (e) {
+            console.log("upmenit", e.data);
+            document.getElementById("umenit").innerHTML = e.data;
+          },
+          false
+        );
+
+        source.addEventListener(
+          "updetik",
+          function (e) {
+            console.log("updetik", e.data);
+            document.getElementById("udetik").innerHTML = e.data;
+          },
+          false
+        );
+
+        source.addEventListener(
+          "upmilidetik",
+          function (e) {
+            console.log("upmilidetik", e.data);
+            document.getElementById("umilidetik").innerHTML = e.data;
+          },
+          false
+        );
+      }
+    </script>-->
+  </body>
+</html>

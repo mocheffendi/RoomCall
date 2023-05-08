@@ -163,7 +163,7 @@ struct Person
 
 void handleAPI()
 {
-  File file = LittleFS.open("/index.html", "r");
+  File file = LittleFS.open("/bed.html", "r");
   server.streamFile(file, "text/html");
   file.close();
 }
@@ -588,6 +588,9 @@ void setup()
   server.serveStatic("/", LittleFS, "/index.html");
   server.serveStatic("/main.js", LittleFS, "/main.js");
   server.serveStatic("/styles.css", LittleFS, "/styles.css");
+  server.serveStatic("/api", LittleFS, "/bed.html");
+  server.serveStatic("/bed.js", LittleFS, "/bed.js");
+  server.serveStatic("/bed.css", LittleFS, "/bed.css");
 
   // handle cases when file is not found
   // server.onNotFound([](){
