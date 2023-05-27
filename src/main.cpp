@@ -75,6 +75,8 @@ unsigned long intervalBlue = 1000; // how long to delay in millis
 unsigned long previousBlue = 0;
 int blueState = LOW;
 
+String Days, Hours, Minutes, Seconds, Milliseconds;
+
 String WiFiStrength;
 
 const int RSSI_MAX = -50;  // define maximum strength of signal in dBm
@@ -487,6 +489,11 @@ void hwInit()
   obj["TotalSize"] = TotalSize;
   obj["UsedSize"] = UsedSize;
   obj["WiFiStrength"] = WiFiStrength;
+  obj["Days"] = Days;
+  obj["Hours"] = Hours;
+  obj["Minutes"] = Minutes;
+  obj["Seconds"] = Seconds;
+  obj["MilliSeconds"] = Milliseconds;
 
   File outFile = LittleFS.open("/system.json", "w");
   if (!outFile)
@@ -531,7 +538,6 @@ void handleRestart()
 
 bool UPTime(void *)
 {
-  String Days, Hours, Minutes, Seconds, Milliseconds;
 
   Serial.print("days: ");
   Serial.println(uptime::getDays());
