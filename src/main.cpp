@@ -421,6 +421,11 @@ int dBmtoPercentage(int dBm)
   return quality;
 }
 
+int bytestoKB(int bkb)
+{
+  return bkb = bkb / 1024;
+}
+
 void hwInit()
 {
   Serial.println("hwInit");
@@ -452,10 +457,16 @@ void hwInit()
   String TotalSize = String(fs_info.totalBytes);
   String UsedSize = String(fs_info.usedBytes);
 
+  int TotalSizeKB = bytestoKB(TotalSize.toInt());
+
   int FreeSpaces = ChipRealSize.toInt() - TotalSize.toInt() - SketchSize.toInt();
-  float FreeSpacesPercent = FreeSpaces / ChipRealSize.toFloat() * 100;
-  float TotalSizePercent = TotalSize.toFloat() / ChipRealSize.toFloat() * 100;
-  float SketchSizePercent = SketchSize.toFloat() / ChipRealSize.toFloat() * 100;
+  float FreeSpacesPercent = FreeSpaces / ChipRealSize.toFloat();
+  float TotalSizePercent = TotalSize.toFloat() / ChipRealSize.toFloat();
+  float SketchSizePercent = SketchSize.toFloat() / ChipRealSize.toFloat();
+
+  int FreeSpacesPercentInt = FreeSpacesPercent * 100;
+  int TotalSizePercentInt = TotalSizePercent * 100;
+  int SketchSizePercentInt = SketchSizePercent * 100;
 
   String FreeSpace = String(FreeSpaces);
 
@@ -480,10 +491,11 @@ void hwInit()
   obj["ChipRealSize"] = ChipRealSize;
   obj["FreeSpace"] = FreeSpace;
   obj["TotalSize"] = TotalSize;
+  obj["TotalSizeKB"] = String(TotalSizeKB);
   obj["UsedSize"] = UsedSize;
-  obj["FreeSpacesPercent"] = FreeSpacesPercent;
-  obj["TotalSizePercent"] = TotalSizePercent;
-  obj["SketchSizePercent"] = SketchSizePercent;
+  obj["FreeSpacesPercent"] = String(FreeSpacesPercentInt);
+  obj["TotalSizePercent"] = String(TotalSizePercentInt);
+  obj["SketchSizePercent"] = String(SketchSizePercentInt);
   obj["VendorID"] = VendorID;
   obj["CPUFreqMhz"] = CPUFreqMhz;
   obj["VCC"] = VCC;
