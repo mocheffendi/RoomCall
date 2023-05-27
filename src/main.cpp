@@ -42,6 +42,10 @@
 
 #include "uptime.h"
 
+#include <arduino-timer.h>
+
+auto timer = timer_create_default();
+
 FSInfo fs_info;
 
 #ifndef STASSID
@@ -525,6 +529,35 @@ void handleRestart()
   ESP.reset();
 }
 
+bool UPTime(void *)
+{
+  String Days, Hours, Minutes, Seconds, Milliseconds;
+
+  Serial.print("days: ");
+  Serial.println(uptime::getDays());
+  Days = uptime::getDays();
+
+  Serial.print("hours: ");
+  Serial.println(uptime::getHours());
+  Hours = uptime::getHours();
+
+  Serial.print("minutes: ");
+  Serial.println(uptime::getMinutes());
+  Minutes = uptime::getMinutes();
+
+  Serial.print("seconds: ");
+  Serial.println(uptime::getSeconds());
+  Seconds = uptime::getSeconds();
+
+  Serial.print("milliseconds: ");
+  Serial.println(uptime::getMilliseconds());
+  Milliseconds = uptime::getMilliseconds();
+
+  Serial.print("\n");
+
+  return true;
+}
+
 void setup()
 {
   // the usual Serial stuff....
@@ -632,6 +665,9 @@ void setup()
   server.begin();
   filemgr.begin();
   hwInit();
+
+  // call the toggle_led function every 1000 millis (1 second)
+  timer.every(1000, UPTime);
 }
 
 void loop()
@@ -645,6 +681,8 @@ void loop()
   // First call calculate_uptime() to calculate the uptime
   // and then read the uptime variables.
   uptime::calculateUptime();
+
+  timer.tick();
 
   unsigned long currentMillis = millis();
 
