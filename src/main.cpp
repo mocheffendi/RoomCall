@@ -453,6 +453,10 @@ void hwInit()
   String UsedSize = String(fs_info.usedBytes);
 
   int FreeSpaces = ChipRealSize.toInt() - TotalSize.toInt() - SketchSize.toInt();
+  float FreeSpacesPercent = FreeSpaces / ChipRealSize.toFloat() * 100;
+  float TotalSizePercent = TotalSize.toFloat() / ChipRealSize.toFloat() * 100;
+  float SketchSizePercent = SketchSize.toFloat() / ChipRealSize.toFloat() * 100;
+
   String FreeSpace = String(FreeSpaces);
 
   WiFiStrength = String(dBmtoPercentage(WiFi.RSSI()));
@@ -477,6 +481,9 @@ void hwInit()
   obj["FreeSpace"] = FreeSpace;
   obj["TotalSize"] = TotalSize;
   obj["UsedSize"] = UsedSize;
+  obj["FreeSpacesPercent"] = FreeSpacesPercent;
+  obj["TotalSizePercent"] = TotalSizePercent;
+  obj["SketchSizePercent"] = SketchSizePercent;
   obj["VendorID"] = VendorID;
   obj["CPUFreqMhz"] = CPUFreqMhz;
   obj["VCC"] = VCC;
