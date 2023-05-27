@@ -40,6 +40,8 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
+#include "uptime.h"
+
 FSInfo fs_info;
 
 #ifndef STASSID
@@ -68,6 +70,11 @@ int blue = 2;
 unsigned long intervalBlue = 1000; // how long to delay in millis
 unsigned long previousBlue = 0;
 int blueState = LOW;
+
+String WiFiStrength;
+
+const int RSSI_MAX = -50;  // define maximum strength of signal in dBm
+const int RSSI_MIN = -100; // define minimum strength of signal in dBm
 
 void fancyled()
 {
@@ -389,6 +396,25 @@ void handleCall()
   server.send(200, "text/plain", "Record updated successfully");
 }
 
+int dBmtoPercentage(int dBm)
+{
+  int quality;
+  if (dBm <= RSSI_MIN)
+  {
+    quality = 0;
+  }
+  else if (dBm >= RSSI_MAX)
+  {
+    quality = 100;
+  }
+  else
+  {
+    quality = 2 * (dBm + 100);
+  }
+
+  return quality;
+}
+
 void hwInit()
 {
   Serial.println("hwInit");
@@ -401,7 +427,7 @@ void hwInit()
   String FlashChipID = String(ESP.getFlashChipId());
   String CPUFreqMhz = String(ESP.getCpuFreqMHz());
   uint16_t v = ESP.getVcc();
-  float vcc = ((float)v / 1024.0f);
+  // float vcc = ((float)v / 1024.0f);
   // char v_str[10];
   // dtostrf(vcc, 5, 3, v_str);
   // sprintf(v_str, "%s V", v_str);
@@ -422,6 +448,9 @@ void hwInit()
 
   int FreeSpaces = ChipRealSize.toInt() - TotalSize.toInt() - SketchSize.toInt();
   String FreeSpace = String(FreeSpaces);
+
+  WiFiStrength = String(dBmtoPercentage(WiFi.RSSI()));
+
   File file = LittleFS.open("/system.json", "r");
   size_t size = file.size();
   std::unique_ptr<char[]> buf(new char[size]);
@@ -440,6 +469,8 @@ void hwInit()
   obj["FlashChipID"] = FlashChipID;
   obj["ChipRealSize"] = ChipRealSize;
   obj["FreeSpace"] = FreeSpace;
+  obj["TotalSize"] = TotalSize;
+  obj["UsedSize"] = UsedSize;
   obj["VendorID"] = VendorID;
   obj["CPUFreqMhz"] = CPUFreqMhz;
   obj["VCC"] = VCC;
@@ -451,6 +482,7 @@ void hwInit()
   obj["MACAddressHW"] = MACAddressHW;
   obj["TotalSize"] = TotalSize;
   obj["UsedSize"] = UsedSize;
+  obj["WiFiStrength"] = WiFiStrength;
 
   File outFile = LittleFS.open("/system.json", "w");
   if (!outFile)
@@ -609,6 +641,10 @@ void loop()
   server.handleClient();
   delay(2);
   ArduinoOTA.handle();
+
+  // First call calculate_uptime() to calculate the uptime
+  // and then read the uptime variables.
+  uptime::calculateUptime();
 
   unsigned long currentMillis = millis();
 

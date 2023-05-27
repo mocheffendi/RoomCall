@@ -54,7 +54,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch('http://192.168.0.8/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -228,7 +228,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch('http://192.168.0.8/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -269,7 +269,7 @@ let resetForm = () => {
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('/get');
+        const response = await fetch('http://192.168.0.8/get');
         data = await response.json();
 
     } catch (e) {
@@ -280,7 +280,3 @@ let resetForm = () => {
     console.log(data);
     createTasks();
 })()
-
-const swappable = new Swappable.default(document.querySelectorAll('.grid__container'), {
-    draggable: '.grid__element'
-});
