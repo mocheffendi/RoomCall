@@ -561,27 +561,30 @@ void handleRestart()
 bool UPTime(void *)
 {
 
-  Serial.print("days: ");
-  Serial.println(uptime::getDays());
+  // Serial.print("days: ");
+  // Serial.println(uptime::getDays());
   Days = uptime::getDays();
 
-  Serial.print("hours: ");
-  Serial.println(uptime::getHours());
+  // Serial.print("hours: ");
+  // Serial.println(uptime::getHours());
   Hours = uptime::getHours();
 
-  Serial.print("minutes: ");
-  Serial.println(uptime::getMinutes());
+  // Serial.print("minutes: ");
+  // Serial.println(uptime::getMinutes());
   Minutes = uptime::getMinutes();
 
-  Serial.print("seconds: ");
-  Serial.println(uptime::getSeconds());
+  // Serial.print("seconds: ");
+  // Serial.println(uptime::getSeconds());
   Seconds = uptime::getSeconds();
 
-  Serial.print("milliseconds: ");
-  Serial.println(uptime::getMilliseconds());
+  // Serial.print("milliseconds: ");
+  // Serial.println(uptime::getMilliseconds());
   Milliseconds = uptime::getMilliseconds();
 
-  Serial.print("\n");
+  // Serial.print("\n");
+
+  String UPTimes = Days + "Days :" + Hours + "Hours :" + Minutes + "Minutes :" + Seconds + "s :" + Milliseconds + "ms";
+  webSocket.broadcastTXT(UPTimes);
 
   return true;
 }
@@ -730,7 +733,7 @@ void setup()
   hwInit();
 
   // call the toggle_led function every 1000 millis (1 second)
-  timer.every(1000, UPTime);
+  timer.every(250, UPTime);
 
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
@@ -751,8 +754,6 @@ void loop()
   timer.tick();
 
   webSocket.loop();
-
-  webSocket.broadcastTXT(Milliseconds);
 
   unsigned long currentMillis = millis();
 
