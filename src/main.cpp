@@ -16,18 +16,11 @@
 #include "ws.h"
 #include "led.h"
 #include "wifistrength.h"
+#include "credential.h"
 
 auto timer = timer_create_default();
 
 FSInfo fs_info;
-
-#ifndef STASSID
-#define STASSID "MEFFENDI"
-#define STAPSK "5758WASISGo"
-#endif
-
-const char *ssid = STASSID;
-const char *password = STAPSK;
 
 // mark parameters not used in example
 #define UNUSED __attribute__((unused))
