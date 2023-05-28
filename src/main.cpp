@@ -35,7 +35,7 @@ ESP8266WebServer server(80);
 
 void handleRoot()
 {
-  File file = LittleFS.open("/index.html", "r");
+  File file = LittleFS.open("/dashboard.html", "r");
   if (!file)
   {
     Serial.println("No Saved Data!");
@@ -48,7 +48,7 @@ void handleRoot()
 void handleRedirect()
 {
   TRACE("Redirect...");
-  String url = "/index.html";
+  String url = "/dashboard.html";
 
   if (!LittleFS.exists(url))
   {
@@ -573,7 +573,7 @@ void setup()
   server.serveStatic("/", LittleFS, "/dashboard.html");
   server.serveStatic("/main.js", LittleFS, "/main.js");
   server.serveStatic("/styles.css", LittleFS, "/styles.css");
-  server.serveStatic("/api", LittleFS, "/bed.html");
+  server.serveStatic("/bed.html", LittleFS, "/bed.html");
   server.serveStatic("/bed.js", LittleFS, "/bed.js");
   server.serveStatic("/bed.css", LittleFS, "/bed.css");
   server.serveStatic("/system.html", LittleFS, "/system.html");
