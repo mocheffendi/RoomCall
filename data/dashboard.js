@@ -55,7 +55,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('http://192.168.0.18/create', {
+        const response = await fetch('/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -193,10 +193,13 @@ let createTasks = async () => {
                   <span class="small text-secondary">${x.bedname}</span>
                   <p>${x.status}</p>
         
-                  <!--<span class="options">
+                  <span class="options">
+                    <!--  
                     <i onClick="editTask(this)" data-bs-toggle="modal" data-bs-target="#form" class="fas fa-edit"></i>
                     <i onClick="deleteTask(this); createTasks()" class="fas fa-trash-alt"></i>
-                  </span>-->
+                    -->
+                    <i onClick="cancelTask(this)" class="bi bi-check-circle-fill"></i>
+                  </span>
                 </div>
             </div>
             `)
@@ -207,22 +210,90 @@ let createTasks = async () => {
                   <span class="small text-secondary">${x.bedname}</span>
                   <p>${x.status}</p>
         
-                  <!--<span class="options">
+                  <span class="options">
+                    <!--
                     <i onClick="editTask(this)" data-bs-toggle="modal" data-bs-target="#form" class="fas fa-edit"></i>
                     <i onClick="deleteTask(this); createTasks()" class="fas fa-trash-alt"></i>
                     
-                  </span>-->
+                    <i onClick="cancelTask(this)" class="bi bi-bookmark-check"></i>
+                    -->
+                  </span>
                 </div>
             `)
         }
 
     })
 
-    setTimeout(() => {
-        // document.location.reload();
-        $("#tasks").load(location.href + " #tasks");
-    }, reloadInterval);
+    // setTimeout(() => {
+    //     // document.location.reload();
+    //     // $("#app").load(window.location.href + " #app");
+    //     // $("#tasks").load(" #tasks > *");
+    //     $("#container-fluid").load(" #container-fluid > *");
+    //     createTasks();
+    // }, reloadInterval);
     // resetForm();
+}
+
+
+
+setInterval(async function () {
+
+    try {
+        // console.log('try to get data');
+        const response = await fetch('/get');
+        data = await response.json();
+
+    } catch (e) {
+
+        console.log('Error: ' + e.message);
+    }
+    //data = JSON.parse(localStorage.getItem("data")) || [];
+    console.log(data);
+    createTasks();
+
+    // $("#container-fluid").load(" #container-fluid > *");
+    console.log("sudah load");
+}, 3000);
+
+
+let getTasks = async () => {
+    try {
+        // console.log('try to get data');
+        const response = await fetch('/get');
+        data = await response.json();
+
+    } catch (e) {
+
+        console.log('Error: ' + e.message);
+    }
+    //data = JSON.parse(localStorage.getItem("data")) || [];
+    console.log(data);
+    createTasks();
+}
+
+let cancelTask = async (e) => {
+    try {
+
+        const id = e.parentElement.parentElement.id;
+        console.log(id);
+        const url = "/call?id=" + id + "&status=0";
+        const response = await fetch(url);
+
+        // const dataku = await response.json();
+        const res = await response.text(); //sebab bukan json tapi text 
+        console.log(res);
+
+        // createTasks();
+        // $("#tasks").load(window.location.href + " #tasks");
+        // $("#tasks").load(" #tasks > *");
+        // $("#app").load(window.location.href + " #app");
+        // document.location.reload();
+        getTasks();
+
+    } catch (e) {
+        console.log('Error: ' + e.message);
+    }
+
 }
 
 let deleteTask = async (e) => {
@@ -230,7 +301,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('http://192.168.0.18/create', {
+        const response = await fetch('/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -270,7 +341,7 @@ let editTask = (e) => {
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.18/get');
+        const response = await fetch('/get');
         data = await response.json();
 
     } catch (e) {

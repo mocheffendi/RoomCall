@@ -22,14 +22,14 @@ auto timer = timer_create_default();
 
 FSInfo fs_info;
 
-// // mark parameters not used in example
-// #define UNUSED __attribute__((unused))
+// mark parameters not used in example
+#define UNUSED __attribute__((unused))
 
-// // TRACE output simplified, can be deactivated here
-// #define TRACE(...) Serial.printf(__VA_ARGS__)
+// TRACE output simplified, can be deactivated here
+#define TRACE(...) Serial.printf(__VA_ARGS__)
 
-// // name of the server. You reach it using http://webserver
-// #define HOSTNAME "webserver"
+// name of the server. You reach it using http://webserver
+#define HOSTNAME "webserver"
 
 ESP8266WebServer server(80);
 
@@ -478,6 +478,13 @@ void handleRestart()
   ESP.reset();
 }
 
+void handleFormat()
+{
+  fancyled();
+  LittleFS.format();
+  server.send(200, "text/plain", "LittleFS Formated");
+}
+
 void setup()
 {
   // the usual Serial stuff....
@@ -558,6 +565,7 @@ void setup()
   server.on("/call", handleCall);
   server.on("/system", handleSystem);
   server.on("/restart", handleRestart);
+  server.on("/format", handleFormat);
 
   // UPLOAD and DELETE of files in the file system using a request handler.
   // server.addHandler(new FileServerHandler());
@@ -580,7 +588,7 @@ void setup()
   server.serveStatic("/system.css", LittleFS, "/system.css");
   server.serveStatic("/system.js", LittleFS, "/system.js");
   server.serveStatic("/dashboard.html", LittleFS, "/dashboard.html");
-  server.serveStatic("/dashboard.css", LittleFS, "/dashboard.css");
+  // server.serveStatic("/dashboard.css", LittleFS, "/dashboard.css");
   server.serveStatic("/dashboard.js", LittleFS, "/dashboard.js");
 
   // handle cases when file is not found
@@ -597,6 +605,7 @@ void setup()
 
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
+  // LittleFS.format();
 }
 
 void loop()
