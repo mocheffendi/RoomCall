@@ -55,7 +55,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch('http://192.168.0.18/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -193,10 +193,10 @@ let createTasks = async () => {
                   <span class="small text-secondary">${x.bedname}</span>
                   <p>${x.status}</p>
         
-                  <span class="options">
+                  <!--<span class="options">
                     <i onClick="editTask(this)" data-bs-toggle="modal" data-bs-target="#form" class="fas fa-edit"></i>
                     <i onClick="deleteTask(this); createTasks()" class="fas fa-trash-alt"></i>
-                  </span>
+                  </span>-->
                 </div>
             </div>
             `)
@@ -207,10 +207,11 @@ let createTasks = async () => {
                   <span class="small text-secondary">${x.bedname}</span>
                   <p>${x.status}</p>
         
-                  <span class="options">
+                  <!--<span class="options">
                     <i onClick="editTask(this)" data-bs-toggle="modal" data-bs-target="#form" class="fas fa-edit"></i>
                     <i onClick="deleteTask(this); createTasks()" class="fas fa-trash-alt"></i>
-                  </span>
+                    
+                  </span>-->
                 </div>
             `)
         }
@@ -219,7 +220,7 @@ let createTasks = async () => {
 
     setTimeout(() => {
         // document.location.reload();
-        // $("#tasks").load(location.href + " #tasks");
+        $("#tasks").load(location.href + " #tasks");
     }, reloadInterval);
     // resetForm();
 }
@@ -229,7 +230,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch('http://192.168.0.18/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -269,7 +270,7 @@ let editTask = (e) => {
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('/get');
+        const response = await fetch('http://192.168.0.18/get');
         data = await response.json();
 
     } catch (e) {
