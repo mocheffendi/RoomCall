@@ -22,14 +22,14 @@ auto timer = timer_create_default();
 
 FSInfo fs_info;
 
-// mark parameters not used in example
-#define UNUSED __attribute__((unused))
+// // mark parameters not used in example
+// #define UNUSED __attribute__((unused))
 
-// TRACE output simplified, can be deactivated here
-#define TRACE(...) Serial.printf(__VA_ARGS__)
+// // TRACE output simplified, can be deactivated here
+// #define TRACE(...) Serial.printf(__VA_ARGS__)
 
-// name of the server. You reach it using http://webserver
-#define HOSTNAME "webserver"
+// // name of the server. You reach it using http://webserver
+// #define HOSTNAME "webserver"
 
 ESP8266WebServer server(80);
 
@@ -47,7 +47,7 @@ void handleRoot()
 
 void handleRedirect()
 {
-  TRACE("Redirect...");
+  // TRACE("Redirect...");
   String url = "/dashboard.html";
 
   if (!LittleFS.exists(url))
