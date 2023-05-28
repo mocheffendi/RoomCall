@@ -26,6 +26,13 @@ let createSystem = async () => {
           </thead>
           <tbody>
             <tr>
+              <td><b>NTP Time :</b></td>
+              <td>
+              <div><p id="ntptime"></p></div>
+              <!--${system.Days} Days : ${system.Hours} Hours : ${system.Minutes} Minutes : ${system.Seconds} Seconds : ${system.MilliSeconds} MilliSeconds-->
+              </td>
+            </tr>
+            <tr>
               <td><b>Up Time :</b></td>
               <td>
               <div><p id="mrdiy_value"></p></div>
@@ -162,9 +169,26 @@ let createSystem = async () => {
 
 socket = new WebSocket("ws:/" + "/" + location.host + ":81");
 // socket = new WebSocket("ws:/192.168.0.18:81");
-socket.onopen = function (e) { console.log("[socket] socket.onopen "); };
-socket.onerror = function (e) { console.log("[socket] socket.onerror "); };
+socket.onopen = function (e) {
+  // console.log("[socket] socket.onopen "); 
+};
+socket.onerror = function (e) {
+  // console.log("[socket] socket.onerror "); 
+};
 socket.onmessage = function (e) {
-  console.log("[socket] " + e.data);
+  // console.log("[socket] " + e.data);
   document.getElementById("mrdiy_value").innerHTML = e.data;
+};
+
+socket2 = new WebSocket("ws:/" + "/" + location.host + ":82");
+// socket = new WebSocket("ws:/192.168.0.18:81");
+socket2.onopen = function (e) {
+  // console.log("[socket] socket.onopen "); 
+};
+socket2.onerror = function (e) {
+  // console.log("[socket] socket.onerror "); 
+};
+socket2.onmessage = function (e) {
+  // console.log("[socket] " + e.data);
+  document.getElementById("ntptime").innerHTML = e.data;
 };

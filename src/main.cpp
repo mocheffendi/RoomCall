@@ -17,6 +17,7 @@
 #include "led.h"
 #include "wifistrength.h"
 #include "credential.h"
+#include "ntp.h"
 
 auto timer = timer_create_default();
 
@@ -605,7 +606,12 @@ void setup()
 
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
+
+  webSocket2.begin();
+  webSocket2.onEvent(webSocketEvent);
   // LittleFS.format();
+
+  timeClient.begin();
 }
 
 void loop()
@@ -621,6 +627,13 @@ void loop()
   uptime::calculateUptime();
   timer.tick();
   webSocket.loop();
+  webSocket2.loop();
   led_indicator();
   webSocket.broadcastTXT(UPTimes);
+
+  timeClient.update();
+  // Serial.println(timeClient.getFormattedTime());
+  String NTPTime = timeClient.getFormattedTime();
+
+  webSocket2.broadcastTXT(NTPTime);
 }
