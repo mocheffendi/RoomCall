@@ -1,38 +1,9 @@
-/*
-  The define ESPxWebFlMgr_FileSystem holds the selected filesystem in (surprise!) ESPxWebFlMgr.
-
-  You can
-    -- ignore it. Then LittleFS will be selected and you need to use LittleFS.whatever().
-    -- use it. Like in this example.
-    -- change it. Set a new value *BEFORE* #including <ESPxWebFlMgr.h>
-       Only "#define ESPxWebFlMgr_FileSystem SPIFFS" makes any sense.
-*/
-
-// Board settings
-// Board: "Generic ESP8266 Module"
-// Builtin Led: "2"
-// Upload Speed: "115200"
-// CPU Frequency: "160 MHz"
-// Crystal Frequency: "26 MHz"
-// Flash Size: "4MB (FS:2MB OTA:~1019KB)"
-// Flash Mode: "DOUT (compatible)"
-// Flash Frequency: "40MHz"
-// Reset Method: "dtr (aka nodemcu)"
-// Debug port: "Disabled"
-// Debug Level: "Keine"
-// lwIP Variant: "v2 Lower Memory"
-// VTables: "Flash"
-// Exceptions: "Legacy (new can return nullptr)"
-// Erase Flash: "Only Sketch"
-// Espressif FW: "nonos-sdk 2.2.1+100 (190703)"
-// SSL Support: "All SSL ciphers (most compatible)"
 
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <ESPxWebFlMgr.h>
+#include "filemanager.h"
 #include <FS.h>
 #include <LittleFS.h>
-
 #include <ArduinoJson.h>
 
 // OTA
@@ -40,12 +11,11 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
-#include "uptime.h"
-
+#include "upt.h"
 #include <arduino-timer.h>
-#include <WebSocketsServer.h>
-
-WebSocketsServer webSocket = WebSocketsServer(81);
+#include "ws.h"
+#include "led.h"
+#include "wifistrength.h"
 
 auto timer = timer_create_default();
 
@@ -69,30 +39,6 @@ const char *password = STAPSK;
 #define HOSTNAME "webserver"
 
 ESP8266WebServer server(80);
-const word filemanagerport = 8080;
-
-ESPxWebFlMgr filemgr(filemanagerport); // we want a different port than the webserver
-
-int blue = 2;
-unsigned long intervalBlue = 1000; // how long to delay in millis
-unsigned long previousBlue = 0;
-int blueState = LOW;
-
-String Days, Hours, Minutes, Seconds, Milliseconds;
-
-String WiFiStrength;
-
-const int RSSI_MAX = -50;  // define maximum strength of signal in dBm
-const int RSSI_MIN = -100; // define minimum strength of signal in dBm
-
-void fancyled()
-{
-  for (int i = 0; i < 30; i++)
-  {
-    analogWrite(blue, (i * 100) % 1001);
-    delay(50);
-  }
-}
 
 void handleRoot()
 {
@@ -294,15 +240,15 @@ void handlePerbarui()
 
   JsonObject obj = data[id];
 
-  String name = server.arg("name");
-  int age = server.arg("age").toInt();
+  // String name = server.arg("name");
+  // int age = server.arg("age").toInt();
 
   String roomname = server.arg("roomname");
   String bedname = server.arg("bedname");
   bool status = false;
 
-  obj["name"] = name;
-  obj["age"] = age;
+  // obj["name"] = name;
+  // obj["age"] = age;
 
   obj["roomname"] = roomname;
   obj["bedname"] = bedname;
@@ -403,25 +349,6 @@ void handleCall()
   outFile.close();
 
   server.send(200, "text/plain", "Record updated successfully");
-}
-
-int dBmtoPercentage(int dBm)
-{
-  int quality;
-  if (dBm <= RSSI_MIN)
-  {
-    quality = 0;
-  }
-  else if (dBm >= RSSI_MAX)
-  {
-    quality = 100;
-  }
-  else
-  {
-    quality = 2 * (dBm + 100);
-  }
-
-  return quality;
 }
 
 int bytestoKB(int bkb)
@@ -558,72 +485,6 @@ void handleRestart()
   ESP.reset();
 }
 
-bool UPTime(void *)
-{
-
-  // Serial.print("days: ");
-  // Serial.println(uptime::getDays());
-  Days = uptime::getDays();
-
-  // Serial.print("hours: ");
-  // Serial.println(uptime::getHours());
-  Hours = uptime::getHours();
-
-  // Serial.print("minutes: ");
-  // Serial.println(uptime::getMinutes());
-  Minutes = uptime::getMinutes();
-
-  // Serial.print("seconds: ");
-  // Serial.println(uptime::getSeconds());
-  Seconds = uptime::getSeconds();
-
-  // Serial.print("milliseconds: ");
-  // Serial.println(uptime::getMilliseconds());
-  Milliseconds = uptime::getMilliseconds();
-
-  // Serial.print("\n");
-
-  String UPTimes = Days + "Days :" + Hours + "Hours :" + Minutes + "Minutes :" + Seconds + "s :" + Milliseconds + "ms";
-  webSocket.broadcastTXT(UPTimes);
-
-  return true;
-}
-
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
-{
-
-  switch (type)
-  {
-  case WStype_DISCONNECTED:
-    Serial.printf("[%u] Disconnected!\n", num);
-    break;
-
-  case WStype_CONNECTED:
-  {
-    IPAddress ip = webSocket.remoteIP(num);
-    Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-    // send message to client
-    webSocket.sendTXT(num, "0");
-  }
-  break;
-
-  case WStype_TEXT:
-    Serial.printf("[%u] get Text: %s\n", num, payload);
-    // send message to client
-    // webSocket.sendTXT(num, "message here");
-    // send data to all connected clients
-    // webSocket.broadcastTXT("message here");
-    break;
-
-  case WStype_BIN:
-    Serial.printf("[%u] get binary length: %u\n", num, length);
-    hexdump(payload, length);
-    // send message to client
-    // webSocket.sendBIN(num, payload, length);
-    break;
-  }
-}
-
 void setup()
 {
   // the usual Serial stuff....
@@ -716,12 +577,18 @@ void setup()
 
   // serve all static files
   server.serveStatic("/index.html", LittleFS, "/index.html");
-  server.serveStatic("/", LittleFS, "/index.html");
+  server.serveStatic("/", LittleFS, "/dashboard.html");
   server.serveStatic("/main.js", LittleFS, "/main.js");
   server.serveStatic("/styles.css", LittleFS, "/styles.css");
   server.serveStatic("/api", LittleFS, "/bed.html");
   server.serveStatic("/bed.js", LittleFS, "/bed.js");
   server.serveStatic("/bed.css", LittleFS, "/bed.css");
+  server.serveStatic("/system.html", LittleFS, "/system.html");
+  server.serveStatic("/system.css", LittleFS, "/system.css");
+  server.serveStatic("/system.js", LittleFS, "/system.js");
+  server.serveStatic("/dashboard.html", LittleFS, "/dashboard.html");
+  server.serveStatic("/dashboard.css", LittleFS, "/dashboard.css");
+  server.serveStatic("/dashboard.js", LittleFS, "/dashboard.js");
 
   // handle cases when file is not found
   // server.onNotFound([](){
@@ -750,27 +617,8 @@ void loop()
   // First call calculate_uptime() to calculate the uptime
   // and then read the uptime variables.
   uptime::calculateUptime();
-
   timer.tick();
-
   webSocket.loop();
-
-  unsigned long currentMillis = millis();
-
-  if (currentMillis - previousBlue >= intervalBlue)
-  {
-    // save this reading!
-    previousBlue = currentMillis;
-
-    // figure out if you should turn the LED on or off
-    if (blueState == LOW)
-    {
-      blueState = HIGH;
-    }
-    else
-    {
-      blueState = LOW;
-    }
-    digitalWrite(blue, blueState);
-  }
+  led_indicator();
+  webSocket.broadcastTXT(UPTimes);
 }
