@@ -148,7 +148,7 @@ let createSystem = async () => {
 (async () => {
   try {
     // console.log('try to get data');
-    const response = await fetch('http://192.168.0.18/system');
+    const response = await fetch('/system');
     system = await response.json();
 
   } catch (e) {
@@ -160,8 +160,8 @@ let createSystem = async () => {
   createSystem();
 })()
 
-// socket = new WebSocket("ws:/" + "/" + location.host + ":81");
-socket = new WebSocket("ws:/192.168.0.18:81");
+socket = new WebSocket("ws:/" + "/" + location.host + ":81");
+// socket = new WebSocket("ws:/192.168.0.18:81");
 socket.onopen = function (e) { console.log("[socket] socket.onopen "); };
 socket.onerror = function (e) { console.log("[socket] socket.onerror "); };
 socket.onmessage = function (e) {
