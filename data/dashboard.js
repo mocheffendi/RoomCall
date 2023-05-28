@@ -6,10 +6,11 @@ let msg = document.getElementById("msg");
 let tasks = document.getElementById("tasks");
 let add = document.getElementById("add");
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    formValidation();
-});
+
+// form.addEventListener("submit", async (e) => {
+//     e.preventDefault();
+//     formValidation();
+// });
 
 let formValidation = () => {
     if (roomnameInput.value === "") {
@@ -54,7 +55,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('http://192.168.138.146/create', {
+        const response = await fetch('http://192.168.0.18/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -220,7 +221,7 @@ let createTasks = async () => {
         // document.location.reload();
         // $("#tasks").load(location.href + " #tasks");
     }, reloadInterval);
-    resetForm();
+    // resetForm();
 }
 
 let deleteTask = async (e) => {
@@ -228,7 +229,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('http://192.168.138.146/create', {
+        const response = await fetch('http://192.168.0.18/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -258,18 +259,17 @@ let editTask = (e) => {
     deleteTask(e);
 }
 
-let resetForm = () => {
-    roomnameInput.value = '';
-    bednameInput.value = '';
-    statusInput.value = '';
-}
-
+// let resetForm = () => {
+//     roomnameInput.value = '';
+//     bednameInput.value = '';
+//     statusInput.value = '';
+// }
 
 
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.138.146/get');
+        const response = await fetch('http://192.168.0.18/get');
         data = await response.json();
 
     } catch (e) {
@@ -279,8 +279,5 @@ let resetForm = () => {
     //data = JSON.parse(localStorage.getItem("data")) || [];
     console.log(data);
     createTasks();
-})()
 
-const swappable = new Swappable.default(document.querySelectorAll('.grid__container'), {
-    draggable: '.grid__element'
-});
+})()

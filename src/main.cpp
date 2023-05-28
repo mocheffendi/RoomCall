@@ -583,7 +583,7 @@ bool UPTime(void *)
 
   // Serial.print("\n");
 
-  String UPTimes = Days + "Days :" + Hours + "Hours :" + Minutes + "Minutes :" + Seconds + "s :" + Milliseconds + "ms";
+  String UPTimes = Days + " Days : " + Hours + " Hours : " + Minutes + " Minutes : " + Seconds + " s : " + Milliseconds + " ms";
   webSocket.broadcastTXT(UPTimes);
 
   return true;
