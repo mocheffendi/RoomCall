@@ -19,6 +19,7 @@
 #include "credential.h"
 #include "ntp.h"
 #include "wm.h"
+#include "telegram.h"
 
 auto timer = timer_create_default();
 
@@ -645,6 +646,14 @@ void setup()
   // LittleFS.format();
 
   timeClient.begin();
+
+  bot.setChatID(CHAT_ID);
+  // bot.setChatID("123456,7891011,12131415");
+
+  bot.attach(newMsg);
+
+  // bot.sendMessage("Hello, World!");
+  bot.sendMessage("Master RoomCall IP Address : " + WiFi.localIP().toString());
 }
 
 void loop()
@@ -654,6 +663,8 @@ void loop()
   server.handleClient();
   delay(2);
   ArduinoOTA.handle();
+
+  bot.tick();
 
   // First call calculate_uptime() to calculate the uptime
   // and then read the uptime variables.
