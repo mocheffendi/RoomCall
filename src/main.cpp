@@ -18,6 +18,7 @@
 #include "wifistrength.h"
 #include "credential.h"
 #include "ntp.h"
+#include "wm.h"
 
 auto timer = timer_create_default();
 
@@ -495,13 +496,45 @@ void setup()
 
   ESPxWebFlMgr_FileSystem.begin();
 
-  // login into WiFi
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
+  // set led pin as output
+  pinMode(LED_BUILTIN, OUTPUT);
+  // start ticker with 0.5 because we start in AP mode and try to connect
+  ticker.attach(0.6, tick);
+
+  // WiFiManager
+  // Local intialization. Once its business is done, there is no need to keep it around
+  WiFiManager wifiManager;
+  // reset settings - for testing
+  // wifiManager.resetSettings();
+
+  // set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
+  wifiManager.setAPCallback(configModeCallback);
+
+  // fetches ssid and pass and tries to connect
+  // if it does not connect it starts an access point with the specified name
+  // here  "AutoConnectAP"
+  // and goes into a blocking loop awaiting configuration
+  if (!wifiManager.autoConnect("WASISTechOne"))
   {
-    delay(1);
+    Serial.println("failed to connect and hit timeout");
+    // reset and try again, or maybe put it to deep sleep
+    ESP.reset();
+    delay(1000);
   }
+
+  // if you get here you have connected to the WiFi
+  Serial.println("connected...yeey :)");
+  ticker.detach();
+  // keep LED on
+  digitalWrite(LED_BUILTIN, LOW);
+
+  // login into WiFi
+  // WiFi.mode(WIFI_STA);
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   delay(1);
+  // }
   if (WiFi.status() == WL_CONNECTED)
   {
     Serial.print("Open Filemanager with http://");

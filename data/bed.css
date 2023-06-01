@@ -4,6 +4,7 @@
     padding: 0;
     /* box-sizing: border-box; */
     font-family: 'Poppins';
+    
 }
 
 body{
@@ -20,6 +21,7 @@ body{
     width: 100%;
     height: 100%;
     margin: 0;
+    /* display: flex; */
     /* margin: 100px 150px; */
     border: 5px solid #04b8a0;
     border-radius: 8px;
@@ -50,6 +52,8 @@ body{
 #tasks{
     display: flex;
     flex-wrap: wrap;
+    /* grid-template-columns: repeat(auto-fill, mixmax(100px, 1fr));  */
+    /* grid-auto-rows: 100px; */
     /* grid-template-columns: 15% 15% 15% 15% 15% 15%                                                                                         ; */
     justify-content: flex-start;
     gap: 6px;
@@ -59,14 +63,18 @@ body{
     /* min-width: 60px; */
     /* padding: 10px; */
     /* margin: 10px auto; */
+    /* grid-template-columns: repeat(auto-fill, mixmax(100px, 1fr));  */
     background-color: #e2eede;
     border: 3px solid #abcea1;
-    padding: 10px;
+    padding: 10px 8px 8px 8px; /* Top Right Bottom Left */
     border-radius: 8px;
     display: grid;
-    flex-wrap: wrap;
+    line-height: 4px;
+    width: 100px;
+    
+    /* flex-wrap: wrap; */
     justify-content: center;
-    gap: 2px;
+    gap: 1rem;
 }
 
 .options{
@@ -116,7 +124,7 @@ body{
 @media only screen and (max-width: 575px) {
     .app {
       background-color: #04b8a0;
-      margin-top: 45%;
+      margin-top: 35%;
       /* padding-top: 25%; */
       /* padding-block-start: 45%; */
     }
