@@ -55,7 +55,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch('http://192.168.0.18/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -84,6 +84,9 @@ let createTasks = async () => {
     tasks.innerHTML = "";
     data.map((x, y) => {
         if (x.status === true) {
+
+            document.getElementById('alarm').play();
+            // alert("Thank you!");
             counter++;
             console.log(counter);
             reloadInterval = 3000 * counter;
@@ -240,7 +243,7 @@ setInterval(async function () {
 
     try {
         // console.log('try to get data');
-        const response = await fetch('/get');
+        const response = await fetch('http://192.168.0.18/get');
         data = await response.json();
 
     } catch (e) {
@@ -259,7 +262,7 @@ setInterval(async function () {
 let getTasks = async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('/get');
+        const response = await fetch('http://192.168.0.18/get');
         data = await response.json();
 
     } catch (e) {
@@ -276,7 +279,7 @@ let cancelTask = async (e) => {
 
         const id = e.parentElement.parentElement.id;
         console.log(id);
-        const url = "/call?id=" + id + "&status=0";
+        const url = "http://192.168.0.18/call?id=" + id + "&status=0";
         const response = await fetch(url);
 
         // const dataku = await response.json();
@@ -301,7 +304,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch('http://192.168.0.18/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -341,7 +344,7 @@ let editTask = (e) => {
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('/get');
+        const response = await fetch('http://192.168.0.18/get');
         data = await response.json();
 
     } catch (e) {
