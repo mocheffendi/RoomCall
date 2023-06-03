@@ -55,7 +55,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('http://192.168.0.18/create', {
+        const response = await fetch('/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -206,6 +206,7 @@ let createTasks = async () => {
                   <span class="fw-bold">${x.roomname}</span>
                   <span class="small text-secondary">${x.bedname}</span>
                   <p>${x.status}</p>
+                  <span class="small text-secondary">RoomID : ${y}</span>
         
                   <span class="options">
                     <i onClick="editTask(this)" data-bs-toggle="modal" data-bs-target="#form" class="fas fa-edit"></i>
@@ -229,7 +230,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('http://192.168.0.18/create', {
+        const response = await fetch('/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -269,7 +270,7 @@ let resetForm = () => {
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.18/get');
+        const response = await fetch('/get');
         data = await response.json();
 
     } catch (e) {
