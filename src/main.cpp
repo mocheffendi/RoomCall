@@ -350,11 +350,6 @@ void handleCall()
   server.send(200, "text/plain", "Record updated successfully");
 }
 
-int bytestoKB(int bkb)
-{
-  return bkb = bkb / 1024;
-}
-
 void hwInit()
 {
   Serial.println("hwInit");

@@ -35,3 +35,8 @@ String decimal(String n)
     bot.sendMessage("Buff : " + String(buff));
     return String(buff);
 }
+
+int bytestoKB(int bkb)
+{
+    return bkb = bkb / 1024;
+}
