@@ -536,6 +536,12 @@ void setup()
   // if it does not connect it starts an access point with the specified name
   // here  "AutoConnectAP"
   // and goes into a blocking loop awaiting configuration
+
+  wifiManager.setConnectTimeout(180);
+  wifiManager.setConnectRetries(100);
+  if (wifiManager.getWiFiIsSaved())
+    wifiManager.setEnableConfigPortal(false);
+
   if (!wifiManager.autoConnect("WASISTechOne"))
   {
     Serial.println("failed to connect and hit timeout");
@@ -633,19 +639,21 @@ void setup()
   server.enableETag(true);
 
   // serve all static files
-  server.serveStatic("/index.html", LittleFS, "/index.html");
+  // server.serveStatic("/index.html", LittleFS, "/index.html");
   server.serveStatic("/", LittleFS, "/dashboard.html");
-  server.serveStatic("/main.js", LittleFS, "/main.js");
-  server.serveStatic("/styles.css", LittleFS, "/styles.css");
+  // server.serveStatic("/main.js", LittleFS, "/main.js");
+  // server.serveStatic("/styles.css", LittleFS, "/styles.css");
   server.serveStatic("/bed.html", LittleFS, "/bed.html");
-  server.serveStatic("/bed.js", LittleFS, "/bed.js");
-  server.serveStatic("/bed.css", LittleFS, "/bed.css");
+  // server.serveStatic("/bed.js", LittleFS, "/bed.js");
+  // server.serveStatic("/bed.css", LittleFS, "/bed.css");
   server.serveStatic("/system.html", LittleFS, "/system.html");
-  server.serveStatic("/system.css", LittleFS, "/system.css");
-  server.serveStatic("/system.js", LittleFS, "/system.js");
+  // server.serveStatic("/system.css", LittleFS, "/system.css");
+  // server.serveStatic("/system.js", LittleFS, "/system.js");
   server.serveStatic("/dashboard.html", LittleFS, "/dashboard.html");
   // server.serveStatic("/dashboard.css", LittleFS, "/dashboard.css");
-  server.serveStatic("/dashboard.js", LittleFS, "/dashboard.js");
+  // server.serveStatic("/dashboard.js", LittleFS, "/dashboard.js");
+  server.serveStatic("/css/", SPIFFS, "/css/");
+  server.serveStatic("/js/", SPIFFS, "/js/");
 
   // handle cases when file is not found
   // server.onNotFound([](){

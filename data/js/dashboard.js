@@ -55,7 +55,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('http://192.168.0.18/create', {
+        const response = await fetch('http://192.168.0.11/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -243,7 +243,7 @@ setInterval(async function () {
 
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.18/get');
+        const response = await fetch('http://192.168.0.11/get');
         data = await response.json();
 
     } catch (e) {
@@ -262,7 +262,7 @@ setInterval(async function () {
 let getTasks = async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.18/get');
+        const response = await fetch('http://192.168.0.11/get');
         data = await response.json();
 
     } catch (e) {
@@ -279,7 +279,7 @@ let cancelTask = async (e) => {
 
         const id = e.parentElement.parentElement.id;
         console.log(id);
-        const url = "http://192.168.0.18/call?id=" + id + "&status=0";
+        const url = "http://192.168.0.11/call?id=" + id + "&status=0";
         const response = await fetch(url);
 
         // const dataku = await response.json();
@@ -304,7 +304,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('http://192.168.0.18/create', {
+        const response = await fetch('http://192.168.0.11/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -344,7 +344,7 @@ let editTask = (e) => {
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.18/get');
+        const response = await fetch('http://192.168.0.11/get');
         data = await response.json();
 
     } catch (e) {
