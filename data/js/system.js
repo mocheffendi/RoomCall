@@ -1,5 +1,8 @@
 let systems = document.getElementById("systems");
 
+// const host = "http://192.168.0.6";
+const host = "";
+
 let system = [{}];
 
 let createSystem = async () => {
@@ -155,7 +158,7 @@ let createSystem = async () => {
 (async () => {
   try {
     // console.log('try to get data');
-    const response = await fetch('/system');
+    const response = await fetch(host + '/system');
     system = await response.json();
 
   } catch (e) {

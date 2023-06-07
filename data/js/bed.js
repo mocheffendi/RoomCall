@@ -6,6 +6,8 @@ let msg = document.getElementById("msg");
 let tasks = document.getElementById("tasks");
 let add = document.getElementById("add");
 
+// const host = "http://192.168.0.6";
+const host = "";
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -55,7 +57,7 @@ let acceptData = async () => {
     console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch(host + '/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -230,7 +232,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('/create', {
+        const response = await fetch(host + '/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -270,7 +272,7 @@ let resetForm = () => {
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('/get');
+        const response = await fetch(host + '/get');
         data = await response.json();
 
     } catch (e) {

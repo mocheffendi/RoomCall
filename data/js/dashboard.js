@@ -5,7 +5,10 @@ let statusInput = document.getElementById("statusInput");
 let msg = document.getElementById("msg");
 let tasks = document.getElementById("tasks");
 let add = document.getElementById("add");
+let alarms = document.getElementById('alarm');
 
+const host = "http://192.168.0.6";
+// const host = "";
 
 // form.addEventListener("submit", async (e) => {
 //     e.preventDefault();
@@ -48,14 +51,14 @@ let acceptData = async () => {
         return a.roomname > b.roomname ? 1 : (a.roomname === b.roomname ? 0 : -1);
     });
 
-    console.log("sorting");
+    // console.log("sorting");
     console.log(JSON.stringify(data));
 
     localStorage.setItem("data", JSON.stringify(data));
-    console.log('Data on localStorage saved successfully');
+    // console.log('Data on localStorage saved successfully');
 
     try {
-        const response = await fetch('http://192.168.0.11/create', {
+        const response = await fetch((host + '/create'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -65,16 +68,14 @@ let acceptData = async () => {
 
         // const dataku = await response.json();
         const res = await response.text(); //sebab bukan json tapi text 
-        console.log(res);
+        // console.log(res);
 
     } catch (e) {
         console.log('Error: ' + e.message);
     }
 
-    console.log(data);
-
+    // console.log(data);
     createTasks();
-
 }
 
 let counter = 0;
@@ -85,13 +86,13 @@ let createTasks = async () => {
     data.map((x, y) => {
         if (x.status === true) {
 
-            document.getElementById('alarm').play();
+            alarms.play();
             // alert("Thank you!");
             counter++;
-            console.log(counter);
+            // console.log(counter);
             reloadInterval = 3000 * counter;
 
-            console.log(reloadInterval);
+            // console.log(reloadInterval);
             // let voice = new SpeechSynthesisUtterance();
             // const voices = window.speechSynthesis.getVoices();
             // console.log(voices);
@@ -160,7 +161,7 @@ let createTasks = async () => {
             speech.rate = 1;
             // window.speechSynthesis.cancel();
             window.speechSynthesis.speak(speech);
-            console.log("harus e sudah play id: " + y);
+            // console.log("harus e sudah play id: " + y);
             // const allVoicesObtained = new Promise(function (resolve, reject) {
             //     let voices = window.speechSynthesis.getVoices();
             //     if (voices.length !== 0) {
@@ -190,21 +191,24 @@ let createTasks = async () => {
             // });
 
             return (tasks.innerHTML += `
-            <div id=blink>
+            
             <div id=${y}>
                   <span class="fw-bold">${x.roomname}</span>
                   <span class="small text-secondary">${x.bedname}</span>
                   <p>${x.status}</p>
-        
-                  <span class="options">
+
+                  
+                  <span class="blink">
                     <!--  
                     <i onClick="editTask(this)" data-bs-toggle="modal" data-bs-target="#form" class="fas fa-edit"></i>
                     <i onClick="deleteTask(this); createTasks()" class="fas fa-trash-alt"></i>
                     -->
-                    <i onClick="cancelTask(this)" class="bi bi-check-circle-fill"></i>
+                    <!--<i onClick="cancelTask(this)" class="bi bi-check-circle-fill"></i>-->
+                    <img onClick="cancelTask(this)" src="images/clipboard-check-fill.svg" alt="Cancel this" />                
                   </span>
+                  
                 </div>
-            </div>
+            
             `)
         } else {
             return (tasks.innerHTML += `
@@ -243,7 +247,7 @@ setInterval(async function () {
 
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.11/get');
+        const response = await fetch(host + '/get');
         data = await response.json();
 
     } catch (e) {
@@ -251,18 +255,18 @@ setInterval(async function () {
         console.log('Error: ' + e.message);
     }
     //data = JSON.parse(localStorage.getItem("data")) || [];
-    console.log(data);
+    // console.log(data);
     createTasks();
 
     // $("#container-fluid").load(" #container-fluid > *");
-    console.log("sudah load");
+    // console.log("sudah load");
 }, 3000);
 
 
 let getTasks = async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.11/get');
+        const response = await fetch(host + '/get');
         data = await response.json();
 
     } catch (e) {
@@ -270,16 +274,15 @@ let getTasks = async () => {
         console.log('Error: ' + e.message);
     }
     //data = JSON.parse(localStorage.getItem("data")) || [];
-    console.log(data);
+    // console.log(data);
     createTasks();
 }
 
 let cancelTask = async (e) => {
     try {
-
         const id = e.parentElement.parentElement.id;
         console.log(id);
-        const url = "http://192.168.0.11/call?id=" + id + "&status=0";
+        const url = host + "/call?id=" + id + "&status=0";
         const response = await fetch(url);
 
         // const dataku = await response.json();
@@ -304,7 +307,7 @@ let deleteTask = async (e) => {
     data.splice(e.parentElement.parentElement.id, 1);
 
     try {
-        const response = await fetch('http://192.168.0.11/create', {
+        const response = await fetch(host + '/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
@@ -340,11 +343,10 @@ let editTask = (e) => {
 //     statusInput.value = '';
 // }
 
-
 (async () => {
     try {
         // console.log('try to get data');
-        const response = await fetch('http://192.168.0.11/get');
+        const response = await fetch(host + '/get');
         data = await response.json();
 
     } catch (e) {
@@ -352,7 +354,6 @@ let editTask = (e) => {
         console.log('Error: ' + e.message);
     }
     //data = JSON.parse(localStorage.getItem("data")) || [];
-    console.log(data);
+    // console.log(data);
     createTasks();
-
 })()

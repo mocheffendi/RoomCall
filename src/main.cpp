@@ -2,7 +2,10 @@
 ADC_MODE(ADC_VCC);
 
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <ESP8266HTTPUpdateServer.h>
 #include "filemanager.h"
 #include <FS.h>
 #include <LittleFS.h>
@@ -24,18 +27,27 @@ ADC_MODE(ADC_VCC);
 #include "telegram.h"
 #include "dec.h"
 
+// WiFiManager
+// Local intialization. Once its business is done, there is no need to keep it around
+WiFiManager wifiManager;
+
 auto timer = timer_create_default();
 
 FSInfo fs_info;
 
+const char *host = "esp8266-webupdate";
+
+ESP8266WebServer httpServer(88);
+ESP8266HTTPUpdateServer httpUpdater;
+
 // mark parameters not used in example
-#define UNUSED __attribute__((unused))
+// #define UNUSED __attribute__((unused))
 
 // TRACE output simplified, can be deactivated here
-#define TRACE(...) Serial.printf(__VA_ARGS__)
+// #define TRACE(...) Serial.printf(__VA_ARGS__)
 
 // name of the server. You reach it using http://webserver
-#define HOSTNAME "webserver"
+// #define HOSTNAME "webserver"
 
 ESP8266WebServer server(80);
 
@@ -489,7 +501,7 @@ void handleSystem()
 
   String output;
   serializeJsonPretty(data, output);
-  bot.sendMessage(output);
+  // bot.sendMessage(output);
 
   server.send(200, "application/json", output);
 }
@@ -523,9 +535,6 @@ void setup()
   // start ticker with 0.5 because we start in AP mode and try to connect
   ticker.attach(0.6, tick);
 
-  // WiFiManager
-  // Local intialization. Once its business is done, there is no need to keep it around
-  WiFiManager wifiManager;
   // reset settings - for testing
   // wifiManager.resetSettings();
 
@@ -538,9 +547,6 @@ void setup()
   // and goes into a blocking loop awaiting configuration
 
   wifiManager.setConnectTimeout(180);
-  wifiManager.setConnectRetries(100);
-  if (wifiManager.getWiFiIsSaved())
-    wifiManager.setEnableConfigPortal(false);
 
   if (!wifiManager.autoConnect("WASISTechOne"))
   {
@@ -572,6 +578,10 @@ void setup()
     Serial.print("/");
     Serial.println();
   }
+
+  MDNS.begin(host);
+  httpUpdater.setup(&httpServer);
+  httpServer.begin();
 
   pinMode(blue, OUTPUT);
 
@@ -652,8 +662,9 @@ void setup()
   server.serveStatic("/dashboard.html", LittleFS, "/dashboard.html");
   // server.serveStatic("/dashboard.css", LittleFS, "/dashboard.css");
   // server.serveStatic("/dashboard.js", LittleFS, "/dashboard.js");
-  server.serveStatic("/css/", SPIFFS, "/css/");
-  server.serveStatic("/js/", SPIFFS, "/js/");
+  server.serveStatic("/css/", LittleFS, "/css/");
+  server.serveStatic("/js/", LittleFS, "/js/");
+  server.serveStatic("/images/", LittleFS, "/images/");
 
   // handle cases when file is not found
   // server.onNotFound([](){
@@ -683,10 +694,28 @@ void setup()
 
   // bot.sendMessage("Hello, World!");
   bot.sendMessage("Master RoomCall IP Address : " + WiFi.localIP().toString());
+
+  MDNS.addService("http", "tcp", 88);
+  Serial.printf("HTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
 }
 
 void loop()
 {
+  if (WiFi.status() !=
+      WL_CONNECTED)
+  {                                        // Check if the device is not connected to the WLAN
+    wifiManager.setConfigPortalTimeout(0); // Disable the configuration portal
+    while (WiFi.status() !=
+           WL_CONNECTED)
+    { // Continue attempting to connect until a successful
+      // connection is made
+      delay(5000);
+      WiFi.begin(); // Try to connect to the WLAN again
+    }
+  }
+  httpServer.handleClient();
+  MDNS.update();
+
   filemgr.handleClient();
   delay(2);
   server.handleClient();
