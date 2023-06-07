@@ -86,6 +86,7 @@ let createTasks = async () => {
     data.map((x, y) => {
         if (x.status === true) {
 
+            alarms.muted = false;
             alarms.play();
             // alert("Thank you!");
             counter++;
